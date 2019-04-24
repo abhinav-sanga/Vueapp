@@ -1,7 +1,9 @@
 {
-  "name": "client",
+  "name": "VueApp",
   "version": "0.1.0",
   "private": true,
+  "author": "Abhinav Sanga",
+  "license": "MIT",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
