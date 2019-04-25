@@ -49,12 +49,22 @@ export const store =  new Vuex.Store({
 
 		getFoundPost: (state,payload) => {
 			state.foundPosts = [];
-			for(let i=0;i<state.posts.length;i++){
-				if(state.posts[i].text.search(payload)>=0) {
-					state.foundPosts.unshift(state.posts[i]);
+			for(var j=0;j<state.highlighted.length;j++){
+				if(state.highlighted[j].text === payload){
+					for(var i=0;i<state.highlighted[j].id.length;i++){
+						for(var k=0;k<state.posts.length;k++){
+							if( state.posts[k].id === state.highlighted[j].id[i] ){
+								var fp = {};
+								fp['start'] = state.highlighted[j].pos[i].start;
+								fp['end'] = state.highlighted[j].pos[i].end;
+								fp['fposts'] = state.posts[k];
+								state.foundPosts.unshift(fp);
+							}
+						}
+					}
 				}
-			}
-		}		
+			}	
+		}
 	},
 
 	// actions: {

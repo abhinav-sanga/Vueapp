@@ -24,7 +24,7 @@ Functionality:
 
 5. Inorder to view the blog post completely, click "Read More" button.
 
-6. Right-click on any of the blogpost in the landing page to delete that particular post.
+6. Open a post and hover on it, so that there are two options displayed to the top right corner of the div post. One to edit the post and the other to delete it. After deleting the post, the page is redirected to the landing page.
 
 7. The changes are made in the vuex store.
 
@@ -32,6 +32,4 @@ Functionality:
 
 9. On clicking the highlight option, the word selected will be stored in the list of highlighted words, which can be accessed by clicking the left icon in the popover.
 
-10. The highlighted words are displayed in a modal. On clicking a particular highlighted word from the list, the posts in which the word is present will be displayed.
-
-11. To edit a post, open full post and right-click anywhere on the post.
+10. The highlighted words are displayed in a modal. On clicking a particular highlighted word from the list, all the posts in which the word is highlighted will be displayed.

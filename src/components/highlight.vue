@@ -67,6 +67,7 @@ export default {
         this.showTools = false
         return
       }
+
       const { x, y, width } = selection.getRangeAt(0).getBoundingClientRect()
       if (!width) {
         this.showTools = false
@@ -78,7 +79,7 @@ export default {
         return
       }
       this.x =  -100 + x + (width / 2) - Jquery('#highlight_menu').width()/2
-      this.y = -640 + y + Jquery('#highlight_menu').height() + 10
+      this.y = -500 + y + Jquery('#highlight_menu').height() + 10
       this.showTools = true
       this.selectedText = selection.toString()
     },

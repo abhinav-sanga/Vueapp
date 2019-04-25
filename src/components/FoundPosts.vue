@@ -1,14 +1,15 @@
 <template>
   <div id="fp">
     <h5 id="search">Search results..</h5>
-    <section v-for="fpost in foundPosts"
-    v-bind:key="fpost.id">
+    <section v-for="(fpost,index) in foundPosts"
+    v-bind:key="index">
     <article>
-      <h3>{{ fpost.title.toUpperCase() }}</h3>
-      <p>{{ fpost.text.slice(0,fpost.text.length/2)+' ...' }}</p>
+      <h3>{{ fpost.fposts.title.toUpperCase() }}</h3>
+      <p class="block-with-text" v-if="fpost.start <= 200">{{ fpost.fposts.text.slice(0,fpost.start) }}<mark>{{ fpost.fposts.text.slice(fpost.start,fpost.end) }}</mark> {{ fpost.fposts.text.slice(fpost.end,fpost.end+450) }}</p>
+      <p class="block-with-text" v-else-if="fpost.start > 250 ">{{ fpost.fposts.text.slice(fpost.start-250,fpost.start) }}<mark>{{ fpost.fposts.text.slice(fpost.start,fpost.end) }}</mark> {{ fpost.fposts.text.slice(fpost.end,fpost.end+250) }}</p>
       <ul class="actions">
         <li>
-          <button v-on:click="clickMethod(fpost.id)" class="button alt">Read More</button>
+          <button v-on:click="clickMethod(fpost.fposts.id)" class="button alt">Read More</button>
         </li>
       </ul>
     </article>
@@ -38,12 +39,12 @@ export default {
 <style scoped>
 
 #fp:before {
-      content: '';
-      border-top: solid 1px rgba(255, 255, 255, 0.25);
-      width: 10em;
-      display: block;
-      margin: 0.5em auto 1em auto;
-    }
+  content: '';
+  border-top: solid 1px rgba(255, 255, 255, 0.25);
+  width: 10em;
+  display: block;
+  margin: 0.5em auto 1em auto;
+}
 
 #search  {
   font-family: 'Varela Round', sans-serif;
@@ -114,6 +115,31 @@ article p{
     -webkit-flex-direction: column;
     flex-direction: column;
   }
+}
+
+.block-with-text {
+  overflow: hidden;
+  position: relative; 
+  line-height: 1.2em;
+  max-height: 3.6em; 
+  text-align: justify;  
+  margin-right: -1em;
+  padding-right: 1em;
+}
+.block-with-text:before {
+  content: '..';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+.block-with-text:after {
+  content: '';
+  position: absolute;
+  right: 0;
+  width: 1em;
+  height: 1em;
+  margin-top: 0.2em;
+  background: white;
 }
 
 </style>

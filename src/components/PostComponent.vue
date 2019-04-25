@@ -15,8 +15,7 @@
     </form>
 
     <section v-for="post in posts"
-    v-bind:key="post.id"
-    v-on:contextmenu="handler($event,post.id)">
+    v-bind:key="post.id">
     <article>
       <h3>{{ post.title.toUpperCase() }}</h3>
       <p>{{ post.text.slice(0,post.text.length/2)+' ...' }}</p>
@@ -51,11 +50,6 @@ export default {
       this.title = ''
       this.text = ''
       // box-shadow: 0 0 11px rgba(33,33,33,.9);
-    },
-
-    async handler(e,id) {
-      e.preventDefault();
-      await this.$store.commit('deletePost', id)
     },
 
     async clickMethod(id){

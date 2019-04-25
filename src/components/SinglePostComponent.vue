@@ -1,6 +1,6 @@
 <template>
   <div class="container post" v-on:contextmenu="handlere($event,post.id)">
-    <div class="row">
+    <div class="row editdiv">
       <div class="col-md-4 post-title">
         <h1>{{ post.title.toUpperCase() }}</h1>
         <p class="author"><span class="text-muted">{{`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}` }} </span></p>
@@ -12,6 +12,7 @@
         <p id="`${post.id}`">{{ post.text }}</p>
       </highlightable>
     </div>
+    <div class="edit"><i class="fa fa-pencil fa-lg" v-on:click="handlere($event,post.id)"></i><i class="fa fa-trash fa-lg" v-on:click="del($event,post.id)"></i></div>
   </div>
   <modal name="highlightedWords" :height="auto" :width="300" :scrollable="true">
     <div class="modalHeader">
@@ -20,7 +21,7 @@
     <div class="modalContent">
       <ul v-for="word in highWords"
       v-bind:key="word">
-      <li><button class="hwords" v-on:click="findWord(word)">{{'\"'+word+'\"'}}</button></li>
+      <li><button class="hwords" v-on:click="findWord(word.text)">{{'\"'+word.text+'\"'}}</button></li>
     </ul>
   </div>
   <div class="modalFooter">
@@ -29,10 +30,10 @@
 </modal>
 <modal name="edittext" :height="300" :width="500" :scrollable="true">
   <div class="modalHeader">
-      <h5>Update Post</h5>
-    </div>
-    <div class="umodalContent">
-      <form class="form-style">
+    <h5>Update Post</h5>
+  </div>
+  <div class="umodalContent">
+    <form class="form-style">
       <ul>
         <li>
           <input type="text"  v-model="etitle" class="field-style field-full align-none" placeholder="Title" />
@@ -87,21 +88,66 @@ export default {
       this.$modal.show( 'highlightedWords' );
     },
 
-    onHighlight (text) {
-      this.$store.state.highlighted.unshift(text);
+    onHighlight (word) {
+      var ids = [];
+      var positions = [];
+      var pos = {};
+      var hword = {};
+      var start = getSelection().getRangeAt(0).startOffset;
+      var end = getSelection().getRangeAt(0).endOffset;
+      if(this.$store.state.highlighted.length == 0){
+        ids.push(this.post.id);
+        hword['id'] = ids;
+        pos['start'] = start;
+        pos['end'] = end;
+        positions.push(pos);
+        hword['pos'] = positions;
+        hword['text'] = word;
+        this.$store.state.highlighted.push(hword);
+      }else {
+        for(let j=0;j<this.$store.state.highlighted.length;j++){
+          if(this.$store.state.highlighted[j].text === word){
+            // check if same id is present
+            for(let h=0;h<this.$store.state.highlighted[j].id.length;h++){
+              if(this.$store.state.highlighted[j].id[h] == this.post.id && this.$store.state.highlighted[j].pos[h].start == start && this.$store.state.highlighted[j].pos[h].end == end){
+                break;
+              } else {
+                this.$store.state.highlighted[j].id.push(this.post.id);
+                pos['start'] = start;
+                pos['end'] = end;
+                this.$store.state.highlighted[j].pos.push(pos);
+              }
+            }
+          } else {
+            ids.push[this.post.id];
+            hword['id'] = ids;
+            hword['text'] = word;
+            pos['start'] = start;
+            pos['end'] = end;
+            positions.push(pos);
+            hword['pos'] = positions;
+            this.$store.state.highlighted.unshift(hword);
+          }
+        }
+      }
     },
 
     close() {
       this.$modal.hide( 'highlightedWords' );
     },
 
-    async handlere(e,id){
+    async del(e,id) {
+      e.preventDefault();
+      await this.$store.commit('deletePost', id)
+      await this.$router.push({path:'/'});
+    },
+
+    async handlere(e){
       e.preventDefault();
       this.$modal.show( 'edittext' );
     },
 
     async updatePost() {
-      console.log(this.etitle,this.etext,this.post.id)
       const pl = {}
       pl['id'] = this.post.id;
       pl['title'] = this.etitle
@@ -349,6 +395,31 @@ div.umodalContent {
 .form-style ul li input[type="submit"]:hover {
   background: linear-gradient(to bottom, #2D77A2 5%, #337DA8 100%);
   background-color: #28739E;
+}
+
+.editdiv:hover .edit {
+  display: block;
+}
+
+.edit {
+  padding-top: 2px; 
+  padding-right: 7px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: none;
+}
+
+.edit a {
+  color: #000;
+}
+
+.editdiv{
+  position: relative;
+}
+
+.fa-trash {
+  padding-left: 0.4em;
 }
 
 </style>
