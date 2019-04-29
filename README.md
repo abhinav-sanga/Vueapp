@@ -1,4 +1,4 @@
-##Installation:
+## Installation:
 
 1. Clone the repository and open terminal in the project root directory.
 
@@ -10,7 +10,7 @@
 
 -------------------------------------------
 
-##Functionality:
+## Functionality:
 
 1. All the blog posts which are stored in Vuex Store are displayed in the landing page.
 
