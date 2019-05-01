@@ -5,8 +5,8 @@
     v-bind:key="index">
     <article>
       <h3>{{ fpost.fposts.title.toUpperCase() }}</h3>
-      <p class="block-with-text" v-if="fpost.start <= 200">{{ fpost.fposts.text.slice(0,fpost.start) }}<mark>{{ fpost.fposts.text.slice(fpost.start,fpost.end) }}</mark> {{ fpost.fposts.text.slice(fpost.end,fpost.end+450) }}</p>
-      <p class="block-with-text" v-else-if="fpost.start > 250 ">{{ fpost.fposts.text.slice(fpost.start-250,fpost.start) }}<mark>{{ fpost.fposts.text.slice(fpost.start,fpost.end) }}</mark> {{ fpost.fposts.text.slice(fpost.end,fpost.end+250) }}</p>
+      <p class="block-with-text" v-if="fpost.start <= 200">{{ fpost.fposts.text.slice(0,fpost.start) }}<span class="markup">{{ fpost.fposts.text.slice(fpost.start,fpost.end) }}</span> {{ fpost.fposts.text.slice(fpost.end,fpost.end+450) }}</p>
+      <p class="block-with-text" v-else-if="fpost.start > 250 ">{{ fpost.fposts.text.slice(fpost.start-250,fpost.start) }}<span class="markup">{{ fpost.fposts.text.slice(fpost.start,fpost.end) }}</span>{{ fpost.fposts.text.slice(fpost.end,fpost.end+250) }}</p>
       <ul class="actions">
         <li>
           <button v-on:click="clickMethod(fpost.fposts.id)" class="button alt">Read More</button>
@@ -141,5 +141,11 @@ article p{
   margin-top: 0.2em;
   background: white;
 }
+.markup {
+  background-image:linear-gradient(to bottom,rgba(12,242,143,.2),rgba(12,242,143,.2));
+}
 
+.markup:hover {
+  background-image:linear-gradient(to bottom,rgba(12,235,160,.9),rgba(12,235,160,.9))
+}
 </style>

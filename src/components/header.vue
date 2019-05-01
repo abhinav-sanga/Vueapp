@@ -1,7 +1,7 @@
 <template>
   <header id="header">
       <span class="avatar"><img src="../assets/user.png" alt="" /></span>
-      <h1 >Abhinav Sanga</h1>
+      <h1 >SenseHawk</h1>
   </header>
 </template>
 

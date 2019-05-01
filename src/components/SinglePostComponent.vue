@@ -1,75 +1,103 @@
 <template>
-  <div class="container post" v-on:contextmenu="handlere($event,post.id)">
-    <div class="row editdiv">
-      <div class="col-md-4 post-title">
-        <h1>{{ post.title.toUpperCase() }}</h1>
-        <p class="author"><span class="text-muted">{{`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}` }} </span></p>
+  <div class="container">
+    <div class="postdiv post" >
+      <div class="row editdiv">
+
+        <div class="col-md-4 post-title">
+          <h1>{{ post.title.toUpperCase() }}</h1>
+          <p class="author"><span class="text-muted">{{`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}` }} </span></p>
+        </div>
+
+        <div class="col-md-8 col-md-offset-0 post-body">
+          <p id="`${post.id}`" class="para">{{ post.text.slice(0,`${startH}`) }}<span class="markup" @mouseover="onHover()" @mouseleave="onLeave()">{{ post.text.slice(`${startH}`,`${endH}`) }}</span>{{ post.text.slice(`${endH}`,post.text.length) }}</p>
+        </div>
+
+        <div class="edit"><i class="fa fa-pencil fa-lg" v-on:click="handlere($event,post.id)"></i><i class="fa fa-trash fa-lg" v-on:click="del($event,post.id)"></i></div>
       </div>
-      <div class="col-md-8 col-md-offset-0 post-body">
-        <highlightable
-        @display="onDisplay"
-        @highlight="onHighlight">
-        <p id="`${post.id}`">{{ post.text }}</p>
-      </highlightable>
-    </div>
-    <div class="edit"><i class="fa fa-pencil fa-lg" v-on:click="handlere($event,post.id)"></i><i class="fa fa-trash fa-lg" v-on:click="del($event,post.id)"></i></div>
+
+      <modal name="highlightedWords" :height="auto" :width="300" :scrollable="true">
+        <div class="modalHeader">
+          <h5>Highlights</h5>
+        </div>
+        <div class="modalContent">
+          <ul v-for="word in highWords"
+          v-bind:key="word">
+          <li><button class="hwords" v-on:click="findWord(word.text)">{{'\"'+word.text+'\"'}}</button></li>
+        </ul>
+      </div>
+      <div class="modalFooter">
+        <button v-on:click="close" class="alt">Close</button>
+      </div>
+    </modal>
+
+    <modal name="edittext" :height="300" :width="500" :scrollable="true">
+      <div class="modalHeader">
+        <h5>Update Post</h5>
+      </div>
+      <div class="umodalContent">
+        <form class="form-style">
+          <ul>
+            <li>
+              <input type="text"  v-model="etitle" class="field-style field-full align-none" placeholder="Title" />
+            </li>
+            <li>
+              <textarea  v-model="etext" class="field-style" placeholder="Say Something.."></textarea>
+            </li>
+            <li>
+              <input type="button" class="updButton" v-on:click="updatePost" value="Save" />
+            </li>
+          </ul>
+        </form>
+      </div>
+    </modal>
   </div>
-  <modal name="highlightedWords" :height="auto" :width="300" :scrollable="true">
-    <div class="modalHeader">
-      <h5>Highlights</h5>
-    </div>
-    <div class="modalContent">
-      <ul v-for="word in highWords"
-      v-bind:key="word">
-      <li><button class="hwords" v-on:click="findWord(word.text)">{{'\"'+word.text+'\"'}}</button></li>
+  <div id="highlight_menu" style="display:none;"> 
+
+    <ul class="side-by-side">
+      <li><span
+        class="item"
+        v-on:click="onDisplay()">
+        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+          <path d="M19.074 21.117c-1.244 0-2.432-.37-3.532-1.096a7.792 7.792 0 0 1-.703-.52c-.77.21-1.57.32-2.38.32-4.67 0-8.46-3.5-8.46-7.8C4 7.7 7.79 4.2 12.46 4.2c4.662 0 8.457 3.5 8.457 7.803 0 2.058-.85 3.984-2.403 5.448.023.17.06.35.118.55.192.69.537 1.38 1.026 2.04.15.21.172.48.058.7a.686.686 0 0 1-.613.38h-.03z" fill-rule="evenodd"></path>
+        </svg>
+      </span></li>
+      <li><span
+        class="item"
+        v-on:click="onHighlight()">
+        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+          <path fill="#000000" d="M18.5,1.15C17.97,1.15 17.46,1.34 17.07,1.73L11.26,7.55L16.91,13.2L22.73,7.39C23.5,6.61 23.5,5.35 22.73,4.56L19.89,1.73C19.5,1.34 19,1.15 18.5,1.15M10.3,8.5L4.34,14.46C3.56,15.24 3.56,16.5 4.36,17.31C3.14,18.54 1.9,19.77 0.67,21H6.33L7.19,20.14C7.97,20.9 9.22,20.89 10,20.12L15.95,14.16" />
+        </svg>
+      </span></li>
     </ul>
+
+    <div class="caret">
+
+    </div>
   </div>
-  <div class="modalFooter">
-    <button v-on:click="close" class="alt">Close</button>
-  </div>
-</modal>
-<modal name="edittext" :height="300" :width="500" :scrollable="true">
-  <div class="modalHeader">
-    <h5>Update Post</h5>
-  </div>
-  <div class="umodalContent">
-    <form class="form-style">
-      <ul>
-        <li>
-          <input type="text"  v-model="etitle" class="field-style field-full align-none" placeholder="Title" />
-        </li>
-        <li>
-          <textarea  v-model="etext" class="field-style" placeholder="Say Something.."></textarea>
-        </li>
-        <li>
-          <input type="button" class="updButton" v-on:click="updatePost" value="Save" />
-        </li>
-      </ul>
-    </form>
-  </div>
-</modal>
 </div>
 </template>
 
 <script>
 
-import HighlightComponent from './highlight';
-
 export default {
-  name: 'SinglePostComponent',
-
-  components: {
-    'highlightable': HighlightComponent
-  }, 
+  name: 'SinglePostComponent1', 
 
   data(){
     return {
       etitle: this.post.title,
-      etext: this.post.text
+      etext: this.post.text,
+      startH: 0,
+      endH: 0,
+      selectedText: '',
+      high: false
     }
   },
 
   computed: {
+    highlightableEl () {
+      return this.$slots.default[0].elm
+    },
+
     post(){
       var index = this.$store.state.posts.length - this.$route.params.id;
       return this.$store.state.posts[index];
@@ -83,58 +111,152 @@ export default {
     }
   },
 
+  mounted () {
+    window.addEventListener('mouseup', this.onMouseup)
+  },
+
+  beforeDestroy () {
+    window.removeEventListener('mouseup', this.onMouseup)
+  },
+
   methods: {
-    onDisplay () {
-      this.$modal.show( 'highlightedWords' );
+    onMouseup () {
+      var menu = jQuery("#highlight_menu");
+      var s = document.getSelection()
+      var r = s.getRangeAt(0);
+      if (r && s.toString()) {
+        if(!(/^[a-zA-Z0-9]+$/.test(s.toString()))){
+          this.showTools = false
+          alert('You can only highlight a word with no special charecters!')
+          return
+        }
+        var p = r.getBoundingClientRect();
+        this.selectedText = s.toString();
+        if (p.left || p.top) {
+          menu.css({
+            left: (p.left + (p.width / 2)) - (menu.width() / 2),
+            top: (p.top - menu.height() - 10),
+            display: 'block',
+            opacity: 0
+          })
+          .animate({
+            opacity:1
+          }, 300);
+          
+          setTimeout(function() {
+            menu.addClass('highlight_menu_animate');
+          }, 10);
+          return;
+        }
+      }
+      menu.animate({ opacity:0 }, function () {
+        menu.hide().removeClass('highlight_menu_animate');
+      });
+      
     },
 
-    onHighlight (word) {
-      var ids = [];
-      var positions = [];
-      var pos = {};
-      var hword = {};
-      var start = getSelection().getRangeAt(0).startOffset;
-      var end = getSelection().getRangeAt(0).endOffset;
-      if(this.$store.state.highlighted.length == 0){
-        ids.push(this.post.id);
-        hword['id'] = ids;
-        pos['start'] = start;
-        pos['end'] = end;
-        positions.push(pos);
-        hword['pos'] = positions;
-        hword['text'] = word;
-        this.$store.state.highlighted.push(hword);
-      }else {
-        for(let j=0;j<this.$store.state.highlighted.length;j++){
-          if(this.$store.state.highlighted[j].text === word){
-            // check if same id is present
-            for(let h=0;h<this.$store.state.highlighted[j].id.length;h++){
-              if(this.$store.state.highlighted[j].id[h] == this.post.id && this.$store.state.highlighted[j].pos[h].start == start && this.$store.state.highlighted[j].pos[h].end == end){
-                break;
-              } else {
-                this.$store.state.highlighted[j].id.push(this.post.id);
-                pos['start'] = start;
-                pos['end'] = end;
-                this.$store.state.highlighted[j].pos.push(pos);
+    onHighlight () {
+      if (this.high == true){
+        this.high = false;
+        var myString = jQuery(".para").html();
+        var element = jQuery.parseHTML(myString);
+        jQuery("span.markup").each(function(index) {
+          var text = jQuery(this).text();
+          jQuery(this).replaceWith(text);
+        });
+        var newString = element.html();
+      }
+      else {
+        this.high = true;
+        const word = this.selectedText;
+        var ids = [];
+        var positions = [];
+        var pos = {};
+        var hword = {};
+        var start = getSelection().getRangeAt(0).startOffset;
+        var end = getSelection().getRangeAt(0).endOffset;
+        this.startH = start;
+        this.endH = end;
+        if(this.$store.state.highlighted.length == 0){
+          ids.push(this.post.id);
+          hword['id'] = ids;
+          pos['start'] = start;
+          pos['end'] = end;
+          positions.push(pos);
+          hword['pos'] = positions;
+          hword['text'] = word;
+          this.$store.state.highlighted.push(hword);
+        }else {
+          for(let j=0;j<this.$store.state.highlighted.length;j++){
+            if(this.$store.state.highlighted[j].text === word){
+              // check if same id is present
+              for(let h=0;h<this.$store.state.highlighted[j].id.length;h++){
+                if(this.$store.state.highlighted[j].id[h] == this.post.id && this.$store.state.highlighted[j].pos[h].start == start && this.$store.state.highlighted[j].pos[h].end == end){
+                  break;
+                } else {
+                  this.$store.state.highlighted[j].id.push(this.post.id);
+                  pos['start'] = start;
+                  pos['end'] = end;
+                  this.$store.state.highlighted[j].pos.push(pos);
+                }
               }
+            } else {
+              ids.push[this.post.id];
+              hword['id'] = ids;
+              hword['text'] = word;
+              pos['start'] = start;
+              pos['end'] = end;
+              positions.push(pos);
+              hword['pos'] = positions;
+              this.$store.state.highlighted.unshift(hword);
             }
-          } else {
-            ids.push[this.post.id];
-            hword['id'] = ids;
-            hword['text'] = word;
-            pos['start'] = start;
-            pos['end'] = end;
-            positions.push(pos);
-            hword['pos'] = positions;
-            this.$store.state.highlighted.unshift(hword);
           }
         }
       }
     },
 
+    onDisplay () {
+      this.$modal.show( 'highlightedWords' );
+    },
+
     close() {
       this.$modal.hide( 'highlightedWords' );
     },
+
+    toolKit() {
+      var menu = jQuery("#highlight_menu");
+      var p = document.getSelection().getRangeAt(0).getBoundingClientRect();
+      if (p.left || p.top) {
+          menu.css({
+            left: (p.left + (p.width / 2)) - (menu.width() / 2),
+            top: (p.top - menu.height() - 10),
+            display: 'block',
+            opacity: 0
+          })
+          .animate({
+            opacity:1
+          }, 300);
+          
+          setTimeout(function() {
+            menu.addClass('highlight_menu_animate');
+          }, 10);
+          return;
+        }
+    },
+
+    onHover () {
+      this.toolKit();
+      menu.animate({ opacity:0 }, function () {
+        menu.hide().removeClass('highlight_menu_animate');
+      });
+    },
+
+    // onLeave () {
+    //   var menu = jQuery("#highlight_menu");
+    //   menu.animate({ opacity:0 }, function () {
+    //     menu.hide().removeClass('highlight_menu_animate');
+    //   });
+    // },
 
     async del(e,id) {
       e.preventDefault();
@@ -169,7 +291,70 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.container {
+#highlight_menu {
+  
+  color: #fff;
+  border-radius: 5px;
+  background: rgba(0,0,0,.8);
+  position: absolute;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+
+.highlight_menu_animate {
+  transition: top 75ms ease-out,left 75ms ease-out;
+}
+
+.side-by-side {
+  width: 100%;
+  padding:0;
+  margin:10px 10px 10px 0;
+  margin-top:14px;
+}
+.side-by-side li {
+  display: inline;
+  padding: 10px;
+}
+
+.caret {
+  border-style: solid;
+  border-width: 10px 10px 0px 10px;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  border-top-color: rgba(0,0,0,.8);
+  border-right-color: transparent;
+  width: 0px;
+  height: 0px;
+  display: block;
+  position: absolute;
+  top: 53px;
+  left: 45%;
+}
+
+.item{
+  color: #FFF;
+  cursor: pointer;
+}
+
+
+.item path{
+  fill: #FFF;
+}
+
+.item:hover path{
+  fill: #1199ff;
+}
+
+.item:hover{
+  color: #1199ff;
+}
+
+.item + .item{
+  margin-left: 10px;
+}
+
+.postdiv {
   margin-top: 2em;
   margin-right: auto;
   margin-left: auto;
@@ -180,19 +365,19 @@ export default {
 }
 
 @media(min-width:768px){
-  .container {
+  .postdiv {
    width:750px;
  }
 }
 
 @media(min-width:992px){
-  .container {
+  .postdiv {
    width:970px;
  }
 }
 
 @media(min-width:1200px){
-  .container {
+  .postdiv {
    width:1170px;
  }
 }
@@ -245,7 +430,7 @@ export default {
   }
 }
 
-div.container.post {
+div.postdiv.post {
   margin-bottom: 0;
 }
 
@@ -420,6 +605,14 @@ div.umodalContent {
 
 .fa-trash {
   padding-left: 0.4em;
+}
+
+.markup {
+  background-image: linear-gradient(to bottom,rgba(12,242,143,.2),rgba(12,242,143,.2));
+}
+
+.markup:hover {
+ background-image: linear-gradient(to bottom,rgba(12,235,160,.9),rgba(12,235,160,.9))
 }
 
 </style>

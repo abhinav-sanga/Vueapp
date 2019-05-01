@@ -1,6 +1,6 @@
 <template>
 	<footer id="footer">
-		<p>&copy; Abhinav Sanga. All rights reserved.</p>
+		<p>&copy; SenseHawk. All rights reserved.</p>
 	</footer>
 </template>
 
