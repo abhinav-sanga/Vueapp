@@ -5,23 +5,22 @@
 
         <div class="col-md-4 post-title">
           <h1>{{ post.title.toUpperCase() }}</h1>
-          <p class="author"><span class="text-muted">{{`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}` }} </span></p>
+          <p class="author"><span class="text-muted">{{`${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}` }} </span></p>
         </div>
 
         <div class="col-md-8 col-md-offset-0 post-body">
-          <p id="`${post.id}`" class="para">{{ post.text.slice(0,`${startH}`) }}<span class="markup" @mouseover="onHover()" @mouseleave="onLeave()">{{ post.text.slice(`${startH}`,`${endH}`) }}</span>{{ post.text.slice(`${endH}`,post.text.length) }}</p>
+          <p id="`${post.id}`" class="para">{{ post.text.slice(0,`${startH}`) }}<span class="markup" @mouseover="onHover()">{{ post.text.slice(`${startH}`,`${endH}`) }}</span>{{ post.text.slice(`${endH}`,post.text.length) }}</p>
         </div>
 
         <div class="edit"><i class="fa fa-pencil fa-lg" v-on:click="handlere($event,post.id)"></i><i class="fa fa-trash fa-lg" v-on:click="del($event,post.id)"></i></div>
       </div>
 
-      <modal name="highlightedWords" :height="auto" :width="300" :scrollable="true">
+      <modal name="highlightedWords" :width="300" :scrollable="true">
         <div class="modalHeader">
           <h5>Highlights</h5>
         </div>
         <div class="modalContent">
-          <ul v-for="word in highWords"
-          v-bind:key="word">
+          <ul v-for="word in highWords">
           <li><button class="hwords" v-on:click="findWord(word.text)">{{'\"'+word.text+'\"'}}</button></li>
         </ul>
       </div>
@@ -88,8 +87,7 @@ export default {
       etext: this.post.text,
       startH: 0,
       endH: 0,
-      selectedText: '',
-      high: false
+      selectedText: ''
     }
   },
 
@@ -99,11 +97,11 @@ export default {
     },
 
     post(){
-      var index = this.$store.state.posts.length - this.$route.params.id;
-      return this.$store.state.posts[index];
+      var index = this.$store.getters.posts.length - this.$route.params.id;
+      return this.$store.getters.posts[index];
     },
     highWords(){
-      return this.$store.state.highlighted;
+      return this.$store.getters.highlighted;
     },
     date(){
       var d = new Date();
@@ -112,10 +110,13 @@ export default {
   },
 
   mounted () {
+    console.log("mounted:",this.$store.state.high)
     window.addEventListener('mouseup', this.onMouseup)
   },
 
   beforeDestroy () {
+    console.log('beforedestroy')
+    this.$store.state.high = false
     window.removeEventListener('mouseup', this.onMouseup)
   },
 
@@ -156,8 +157,8 @@ export default {
     },
 
     onHighlight () {
-      if (this.high == true){
-        this.high = false;
+      if (this.$store.state.high == true){
+        this.$store.state.high = false;
         var myString = jQuery(".para").html();
         var element = jQuery.parseHTML(myString);
         jQuery("span.markup").each(function(index) {
@@ -165,11 +166,12 @@ export default {
           jQuery(this).replaceWith(text);
         });
         var newString = element.html();
+        return;
       }
       else {
-        this.high = true;
-        const word = this.selectedText;
-        var ids = [];
+        this.$store.state.high = true;
+        var word = this.selectedText;
+        // var ids = [];
         var positions = [];
         var pos = {};
         var hword = {};
@@ -177,42 +179,17 @@ export default {
         var end = getSelection().getRangeAt(0).endOffset;
         this.startH = start;
         this.endH = end;
-        if(this.$store.state.highlighted.length == 0){
-          ids.push(this.post.id);
-          hword['id'] = ids;
+        
+          hword['id'] = this.post.id;
           pos['start'] = start;
           pos['end'] = end;
           positions.push(pos);
           hword['pos'] = positions;
           hword['text'] = word;
           this.$store.state.highlighted.push(hword);
-        }else {
-          for(let j=0;j<this.$store.state.highlighted.length;j++){
-            if(this.$store.state.highlighted[j].text === word){
-              // check if same id is present
-              for(let h=0;h<this.$store.state.highlighted[j].id.length;h++){
-                if(this.$store.state.highlighted[j].id[h] == this.post.id && this.$store.state.highlighted[j].pos[h].start == start && this.$store.state.highlighted[j].pos[h].end == end){
-                  break;
-                } else {
-                  this.$store.state.highlighted[j].id.push(this.post.id);
-                  pos['start'] = start;
-                  pos['end'] = end;
-                  this.$store.state.highlighted[j].pos.push(pos);
-                }
-              }
-            } else {
-              ids.push[this.post.id];
-              hword['id'] = ids;
-              hword['text'] = word;
-              pos['start'] = start;
-              pos['end'] = end;
-              positions.push(pos);
-              hword['pos'] = positions;
-              this.$store.state.highlighted.unshift(hword);
-            }
-          }
-        }
+        
       }
+      return;
     },
 
     onDisplay () {
@@ -250,13 +227,6 @@ export default {
         menu.hide().removeClass('highlight_menu_animate');
       });
     },
-
-    // onLeave () {
-    //   var menu = jQuery("#highlight_menu");
-    //   menu.animate({ opacity:0 }, function () {
-    //     menu.hide().removeClass('highlight_menu_animate');
-    //   });
-    // },
 
     async del(e,id) {
       e.preventDefault();

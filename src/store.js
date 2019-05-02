@@ -5,7 +5,6 @@ Vue.use(Vuex);
 
 export const store =  new Vuex.Store({
 	state: {
-		showTools: false,
 		posts : [
 		{
 			id: 3,
@@ -24,7 +23,8 @@ export const store =  new Vuex.Store({
 		}
 		],
 		highlighted: [],
-		foundPosts: []
+		foundPosts: [],
+      	high: false
 	},
 
 	mutations: {
@@ -52,9 +52,9 @@ export const store =  new Vuex.Store({
 			state.foundPosts = [];
 			for(var j=0;j<state.highlighted.length;j++){
 				if(state.highlighted[j].text === payload){
-					for(var i=0;i<state.highlighted[j].id.length;i++){
+					for(var i=0;i<state.highlighted[j].pos.length;i++){
 						for(var k=0;k<state.posts.length;k++){
-							if( state.posts[k].id === state.highlighted[j].id[i] ){
+							if( state.posts[k].id === state.highlighted[j].id ){
 								var fp = {};
 								fp['start'] = state.highlighted[j].pos[i].start;
 								fp['end'] = state.highlighted[j].pos[i].end;
@@ -71,6 +71,8 @@ export const store =  new Vuex.Store({
 	// actions: {
 	// },
 	getters:{
-		posts: state => state.posts
+		posts: state => state.posts,
+		highlighted: state => state.highlighted,
+		foundPosts: state => state.foundPosts
 	}
 });
